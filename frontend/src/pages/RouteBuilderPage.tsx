@@ -90,11 +90,11 @@ export default function RouteBuilderPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-100 mb-6">New Route</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">New Route</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Canvas */}
         <div className="lg:col-span-2">
-          <p className="text-sm text-gray-400 mb-2 flex items-center gap-4">
+          <p className="text-sm text-gray-500 mb-2 flex items-center gap-4">
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-green-500" />Start (×2)</span>
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-blue-500" />Middle</span>
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-orange-500" />Foot</span>
@@ -105,8 +105,8 @@ export default function RouteBuilderPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <div className="bg-gray-900 rounded-xl p-4">
-            <h2 className="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Sequence</h2>
+          <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-4">
+            <h2 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Sequence</h2>
             <RouteSequencePanel
               selectedHolds={selectedHolds}
               onRemove={handleRemove}
@@ -114,25 +114,25 @@ export default function RouteBuilderPage() {
             />
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-900 rounded-xl p-4 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Route Details</h2>
+          <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-gray-200 shadow-sm rounded-xl p-4 space-y-4">
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Route Details</h2>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Name *</label>
+              <label className="block text-sm text-gray-700 mb-1">Name *</label>
               <input {...register('name')} className="input w-full" placeholder="My awesome route" />
-              {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Grade</label>
+              <label className="block text-sm text-gray-700 mb-1">Grade</label>
               <select {...register('difficulty_grade')} className="input w-full">
                 <option value="">— select —</option>
                 {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
               </select>
               {prediction?.predicted_grade && (
-                <p className="text-xs text-brand-400 mt-1">
+                <p className="text-xs text-brand-600 mt-1">
                   AI suggests:{' '}
                   <button
                     type="button"
-                    className="font-semibold underline hover:text-brand-300"
+                    className="font-semibold underline hover:text-brand-700"
                     onClick={() => setValue('difficulty_grade', prediction.predicted_grade!)}
                   >
                     {prediction.predicted_grade}
@@ -146,11 +146,11 @@ export default function RouteBuilderPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Wall angle (°)</label>
+              <label className="block text-sm text-gray-700 mb-1">Wall angle (°)</label>
               <input {...register('wall_angle')} type="number" className="input w-full" placeholder="40" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Description</label>
+              <label className="block text-sm text-gray-700 mb-1">Description</label>
               <textarea {...register('description')} className="input w-full" rows={2} />
             </div>
             <button

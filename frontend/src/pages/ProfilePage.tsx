@@ -20,13 +20,13 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold text-gray-100 mb-6">Profile</h1>
-      <div className="bg-gray-900 rounded-xl p-6 mb-4">
-        <p className="text-gray-400 text-sm">Username: <span className="text-gray-100">{user?.username}</span></p>
-        <p className="text-gray-400 text-sm mt-1">Email: <span className="text-gray-100">{user?.email}</span></p>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile</h1>
+      <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 mb-4">
+        <p className="text-gray-600 text-sm">Username: <span className="text-gray-900">{user?.username}</span></p>
+        <p className="text-gray-600 text-sm mt-1">Email: <span className="text-gray-900">{user?.email}</span></p>
       </div>
-      <form onSubmit={handleSubmit((d) => update.mutate(d))} className="bg-gray-900 rounded-xl p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-2">Physical Stats</h2>
+      <form onSubmit={handleSubmit((d) => update.mutate(d))} className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">Physical Stats</h2>
         <div className="grid grid-cols-2 gap-4">
           {[
             { name: 'height_cm', label: 'Height (cm)' },
@@ -37,7 +37,7 @@ export default function ProfilePage() {
             { name: 'num_push_ups', label: 'Push-ups' },
           ].map(({ name, label }) => (
             <div key={name}>
-              <label className="block text-xs text-gray-400 mb-1">{label}</label>
+              <label className="block text-xs text-gray-600 mb-1">{label}</label>
               <input
                 {...register(name as keyof Profile, { valueAsNumber: true })}
                 type="number"
@@ -47,7 +47,7 @@ export default function ProfilePage() {
           ))}
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Climbing Style</label>
+          <label className="block text-sm text-gray-700 mb-1">Climbing Style</label>
           <select {...register('climbing_style')} className="input w-full">
             <option value="">— select —</option>
             {['slab', 'vertical', 'overhang', 'roof'].map((s) => (
@@ -55,7 +55,7 @@ export default function ProfilePage() {
             ))}
           </select>
         </div>
-        {update.isSuccess && <p className="text-brand-500 text-sm">Saved!</p>}
+        {update.isSuccess && <p className="text-brand-600 text-sm">Saved!</p>}
         <button type="submit" disabled={!isDirty || update.isPending} className="btn-primary">
           {update.isPending ? 'Saving…' : 'Save Profile'}
         </button>

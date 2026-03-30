@@ -38,8 +38,8 @@ export default function AttemptLogger({ routeId }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-900 rounded-xl p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Log Attempt</h3>
+    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 shadow-sm rounded-xl p-4 space-y-4">
+      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Log Attempt</h3>
       <div className="flex gap-3">
         <button
           type="button"
@@ -47,7 +47,7 @@ export default function AttemptLogger({ routeId }: Props) {
           className={`flex-1 py-2 rounded-lg font-medium text-sm transition-colors border ${
             success === true
               ? 'bg-brand-600 border-brand-600 text-white'
-              : 'border-gray-700 text-gray-400 hover:border-brand-600 hover:text-brand-400'
+              : 'border-gray-300 text-gray-600 hover:border-brand-600 hover:text-brand-600'
           }`}
         >
           Send ✓
@@ -57,15 +57,15 @@ export default function AttemptLogger({ routeId }: Props) {
           onClick={() => setSuccess(false)}
           className={`flex-1 py-2 rounded-lg font-medium text-sm transition-colors border ${
             success === false
-              ? 'bg-red-800 border-red-700 text-white'
-              : 'border-gray-700 text-gray-400 hover:border-red-700 hover:text-red-400'
+              ? 'bg-red-600 border-red-600 text-white'
+              : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'
           }`}
         >
           Fell ✗
         </button>
       </div>
       <div>
-        <label className="block text-xs text-gray-400 mb-1">Duration (seconds)</label>
+        <label className="block text-xs text-gray-600 mb-1">Duration (seconds)</label>
         <input
           type="number"
           value={duration}
@@ -75,7 +75,7 @@ export default function AttemptLogger({ routeId }: Props) {
         />
       </div>
       <div>
-        <label className="block text-xs text-gray-400 mb-1">Notes</label>
+        <label className="block text-xs text-gray-600 mb-1">Notes</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -84,7 +84,7 @@ export default function AttemptLogger({ routeId }: Props) {
           placeholder="Beta, crux thoughts…"
         />
       </div>
-      {saved && <p className="text-brand-500 text-sm">Attempt logged!</p>}
+      {saved && <p className="text-brand-600 text-sm">Attempt logged!</p>}
       <button
         type="submit"
         disabled={success === null || log.isPending}

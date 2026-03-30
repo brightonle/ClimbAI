@@ -8,6 +8,7 @@ import RouteBuilderPage from './pages/RouteBuilderPage'
 import RoutesListPage from './pages/RoutesListPage'
 import RouteDetailPage from './pages/RouteDetailPage'
 import ProfilePage from './pages/ProfilePage'
+import AnalyticsPage from './pages/AnalyticsPage'
 import Layout from './components/Layout'
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
         <Route path="/routes/new" element={<RouteBuilderPage />} />
         <Route path="/routes/:id" element={<RouteDetailPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Layout>

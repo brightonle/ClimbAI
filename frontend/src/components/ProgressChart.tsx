@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import type { WeeklyStat } from '../types'
 
 interface Props {
@@ -13,36 +13,43 @@ export default function ProgressChart({ data }: Props) {
   }))
 
   return (
-    <div className="bg-gray-900 rounded-xl p-5">
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Weekly Send Rate</h2>
+    <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-4">
+      <h2 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">Weekly Send Rate</h2>
       {formatted.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center py-8">No data yet</p>
+        <p className="text-gray-400 text-sm text-center py-6">No data yet</p>
       ) : (
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={formatted} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-            <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={formatted} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+            <defs>
+              <linearGradient id="sendRateGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+            <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 10 }} axisLine={false} tickLine={false} />
             <YAxis
-              tick={{ fill: '#9ca3af', fontSize: 12 }}
+              tick={{ fill: '#6b7280', fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               domain={[0, 100]}
               tickFormatter={(v) => `${v}%`}
             />
             <Tooltip
-              contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: 8 }}
-              labelStyle={{ color: '#f3f4f6', fontWeight: 600 }}
+              contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8 }}
+              labelStyle={{ color: '#111827', fontWeight: 600 }}
               formatter={(v: number) => [`${v}%`, 'Send rate']}
             />
-            <Line
+            <Area
               type="monotone"
               dataKey="rate_pct"
               stroke="#22c55e"
               strokeWidth={2}
-              dot={{ fill: '#22c55e', r: 3 }}
-              activeDot={{ r: 5 }}
+              fill="url(#sendRateGrad)"
+              dot={false}
+              activeDot={{ r: 4, fill: '#22c55e', strokeWidth: 0 }}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       )}
     </div>
