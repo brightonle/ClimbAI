@@ -24,4 +24,4 @@ class Route(Base):
     route_holds: Mapped[list["RouteHold"]] = relationship(
         "RouteHold", back_populates="route", order_by="RouteHold.position_in_route", cascade="all, delete-orphan"
     )
-    attempts: Mapped[list["Attempt"]] = relationship("Attempt", back_populates="route")
+    attempts: Mapped[list["Attempt"]] = relationship("Attempt", back_populates="route", passive_deletes=True)

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useParams, Link } from 'react-router-dom'
 import { routesService } from '../services/routesService'
 import { attemptsService } from '../services/attemptsService'
+import type { Route } from '../types'
 import AttemptLogger from '../components/AttemptLogger'
 
 export default function RouteDetailPage() {
@@ -16,6 +17,12 @@ export default function RouteDetailPage() {
   const { data: attempts = [] } = useQuery({
     queryKey: ['attempts'],
     queryFn: attemptsService.list,
+  })
+
+  const { data: similar = [] } = useQuery({
+    queryKey: ['routes', routeId, 'similar'],
+    queryFn: () => routesService.similar(routeId),
+    enabled: !!routeId,
   })
 
   const routeAttempts = attempts.filter((a) => a.route_id === routeId)
@@ -119,8 +126,31 @@ export default function RouteDetailPage() {
         </div>
 
         {/* Sidebar */}
-        <div>
+        <div className="space-y-4">
           <AttemptLogger routeId={routeId} />
+          {similar.length > 0 && (
+            <div className="bg-gray-900 rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-3">
+                Similar Routes
+              </h2>
+              <div className="space-y-2">
+                {similar.map((r: Route) => (
+                  <Link
+                    key={r.id}
+                    to={`/routes/${r.id}`}
+                    className="flex items-center gap-3 bg-gray-800 rounded-lg px-3 py-2 hover:bg-gray-700 transition-colors"
+                  >
+                    <span className="text-gray-100 text-sm font-medium flex-1 truncate">{r.name}</span>
+                    {r.difficulty_grade && (
+                      <span className="text-xs bg-gray-700 px-2 py-0.5 rounded font-mono text-brand-400 flex-shrink-0">
+                        {r.difficulty_grade}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

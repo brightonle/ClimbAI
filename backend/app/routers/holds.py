@@ -1,12 +1,35 @@
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.hold import Hold
+from app.models.route_hold import RouteHold
+from app.models.route import Route as RouteModel
 from app.schemas.hold import HoldOut, HoldNearestRequest
 from app.services.holds import find_nearest_hold
 
 router = APIRouter()
+
+
+@router.get("/heatmap")
+def get_heatmap(grade: str | None = Query(default=None), db: Session = Depends(get_db)):
+    q = (
+        db.query(Hold.id, Hold.x, Hold.y, func.count(RouteHold.id).label("count"))
+        .join(RouteHold, Hold.id == RouteHold.hold_id)
+    )
+    if grade:
+        q = q.join(RouteModel, RouteModel.id == RouteHold.route_id).filter(
+            RouteModel.difficulty_grade == grade
+        )
+    rows = q.group_by(Hold.id, Hold.x, Hold.y).all()
+    if not rows:
+        return []
+    max_count = max(r.count for r in rows)
+    return [
+        {"hold_id": r.id, "x": r.x, "y": r.y, "count": r.count, "intensity": r.count / max_count}
+        for r in rows
+    ]
 
 
 @router.get("", response_model=list[HoldOut])

@@ -30,15 +30,16 @@ export default function RouteSequencePanel({ selectedHolds, onRemove, onClear }:
             className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2 text-sm"
           >
             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${
-              i === 0 ? 'bg-brand-600' : i === selectedHolds.length - 1 ? 'bg-amber-600' : 'bg-blue-600'
+              s.role === 'start' ? 'bg-green-600' :
+              s.role === 'foot'  ? 'bg-orange-500' :
+              s.role === 'finish'? 'bg-amber-500' :
+                                   'bg-blue-600'
             }`}>
               {s.position}
             </span>
             <div className="flex-1 min-w-0">
-              <span className="text-gray-200 truncate">{s.hold.hold_type || 'Hold'}</span>
-              {s.hold.function && (
-                <span className="text-gray-500 ml-1 text-xs">({s.hold.function})</span>
-              )}
+              <span className="text-gray-200 capitalize">{s.role}</span>
+              <span className="text-gray-500 ml-1 text-xs">({s.hold.hold_type || 'hold'})</span>
             </div>
             <span className="text-gray-500 text-xs">{s.hold.x.toFixed(0)},{s.hold.y.toFixed(0)}</span>
             <button

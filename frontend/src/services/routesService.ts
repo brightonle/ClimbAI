@@ -24,4 +24,14 @@ export const routesService = {
   create: (data: RouteCreatePayload) => api.post<RouteDetail>('/routes', data).then((r) => r.data),
 
   delete: (id: number) => api.delete(`/routes/${id}`),
+
+  similar: (id: number) => api.get<Route[]>(`/routes/${id}/similar`).then((r) => r.data),
+
+  predict: (holdIds: number[], wallAngle?: number) =>
+    api
+      .post<{ predicted_grade: string | null; confidence?: number }>('/routes/predict', {
+        hold_ids: holdIds,
+        wall_angle: wallAngle ?? null,
+      })
+      .then((r) => r.data),
 }

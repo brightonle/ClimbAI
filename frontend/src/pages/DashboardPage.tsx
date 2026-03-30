@@ -1,11 +1,16 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { attemptsService } from '../services/attemptsService'
 import { authService } from '../services/authService'
 import GradePyramid from '../components/GradePyramid'
 import ProgressChart from '../components/ProgressChart'
+import KilterBoardCanvas from '../components/KilterBoardCanvas'
+
+const GRADES = ['V0','V1','V2','V3','V4','V5','V6','V7','V8','V9','V10','V11','V12+']
 
 export default function DashboardPage() {
+  const [heatGrade, setHeatGrade] = useState<string>('')
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: authService.me })
   const { data: stats, isLoading } = useQuery({
     queryKey: ['attempt-stats'],
@@ -87,6 +92,27 @@ export default function DashboardPage() {
           )}
         </>
       )}
+      {/* Hold Heatmap */}
+      <div className="bg-gray-900 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Hold Heatmap</h2>
+          <select
+            value={heatGrade}
+            onChange={(e) => setHeatGrade(e.target.value)}
+            className="input text-xs py-1"
+          >
+            <option value="">All grades</option>
+            {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select>
+        </div>
+        <p className="text-xs text-gray-500 mb-3">Red = most used holds across your routes</p>
+        <KilterBoardCanvas
+          selectedHolds={[]}
+          onHoldClick={() => {}}
+          mode="heatmap"
+          grade={heatGrade || undefined}
+        />
+      </div>
     </div>
   )
 }

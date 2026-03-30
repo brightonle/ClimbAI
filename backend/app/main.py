@@ -1,9 +1,22 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import auth, users, holds, routes, attempts
+from app.services.graph import graph_service
 
-app = FastAPI(title="ClimbAI API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        graph_service.connect()
+    except Exception:
+        pass  # don't fail startup if Neo4j is unavailable
+    yield
+    graph_service.close()
+
+
+app = FastAPI(title="ClimbAI API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

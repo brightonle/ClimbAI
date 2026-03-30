@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import KilterBoardCanvas from '../components/KilterBoardCanvas'
 import RouteSequencePanel from '../components/RouteSequencePanel'
 import { routesService } from '../services/routesService'
-import type { Hold, SelectedHold } from '../types'
+import type { Hold, HoldRole, SelectedHold } from '../types'
 
 const GRADES = ['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12+']
 
@@ -24,7 +24,17 @@ export default function RouteBuilderPage() {
   const queryClient = useQueryClient()
   const [selectedHolds, setSelectedHolds] = useState<SelectedHold[]>([])
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
+
+  const holdIds = selectedHolds.map((s) => s.hold.id)
+  const wallAngle = watch('wall_angle')
+
+  const { data: prediction } = useQuery({
+    queryKey: ['predict', holdIds, wallAngle],
+    queryFn: () => routesService.predict(holdIds, wallAngle ? Number(wallAngle) : undefined),
+    enabled: holdIds.length >= 2,
+    staleTime: 5000,
+  })
 
   const createRoute = useMutation({
     mutationFn: routesService.create,
@@ -36,13 +46,23 @@ export default function RouteBuilderPage() {
 
   function handleHoldClick(hold: Hold) {
     setSelectedHolds((prev) => {
-      const exists = prev.find((s) => s.hold.id === hold.id)
-      if (exists) {
-        // Deselect and re-number
-        const next = prev.filter((s) => s.hold.id !== hold.id)
-        return next.map((s, i) => ({ ...s, position: i + 1 }))
+      const idx = prev.findIndex((s) => s.hold.id === hold.id)
+      if (idx === -1) {
+        // New hold: start if 1st or 2nd, middle otherwise
+        const position = prev.length + 1
+        const role: HoldRole = position <= 2 ? 'start' : 'middle'
+        return [...prev, { hold, position, role, foot_restriction: false }]
       }
-      return [...prev, { hold, position: prev.length + 1, foot_restriction: false }]
+      const current = prev[idx]
+      if (current.role === 'start' || current.role === 'finish') {
+        // Deselect and renumber
+        return prev.filter((s) => s.hold.id !== hold.id).map((s, i) => ({ ...s, position: i + 1 }))
+      }
+      if (current.role === 'middle') {
+        return prev.map((s) => s.hold.id === hold.id ? { ...s, role: 'foot' as HoldRole, foot_restriction: true } : s)
+      }
+      // foot → finish
+      return prev.map((s) => s.hold.id === hold.id ? { ...s, role: 'finish' as HoldRole } : s)
     })
   }
 
@@ -74,10 +94,11 @@ export default function RouteBuilderPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Canvas */}
         <div className="lg:col-span-2">
-          <p className="text-sm text-gray-400 mb-2">
-            <span className="inline-block w-3 h-3 rounded-full bg-brand-500 mr-1" />Start
-            <span className="inline-block w-3 h-3 rounded-full bg-amber-500 mx-1 ml-3" />Finish
-            <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mx-1 ml-3" />Selected
+          <p className="text-sm text-gray-400 mb-2 flex items-center gap-4">
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-green-500" />Start (×2)</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-blue-500" />Middle</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-orange-500" />Foot</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full bg-amber-500" />Finish</span>
           </p>
           <KilterBoardCanvas selectedHolds={selectedHolds} onHoldClick={handleHoldClick} />
         </div>
@@ -106,6 +127,23 @@ export default function RouteBuilderPage() {
                 <option value="">— select —</option>
                 {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
               </select>
+              {prediction?.predicted_grade && (
+                <p className="text-xs text-brand-400 mt-1">
+                  AI suggests:{' '}
+                  <button
+                    type="button"
+                    className="font-semibold underline hover:text-brand-300"
+                    onClick={() => setValue('difficulty_grade', prediction.predicted_grade!)}
+                  >
+                    {prediction.predicted_grade}
+                  </button>
+                  {prediction.confidence != null && (
+                    <span className="text-gray-500 ml-1">
+                      ({Math.round(prediction.confidence * 100)}% confidence)
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-1">Wall angle (°)</label>

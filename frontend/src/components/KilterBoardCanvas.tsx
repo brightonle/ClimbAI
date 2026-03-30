@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { Stage, Layer, Image as KonvaImage } from 'react-konva'
 import { useQuery } from '@tanstack/react-query'
 import { holdsService } from '../services/holdsService'
-import HoldMarker, { CANVAS_ASPECT_RATIO } from './HoldMarker'
+import HoldMarker from './HoldMarker'
+import { CANVAS_ASPECT_RATIO } from '../utils/boardCoords'
 import type { Hold, SelectedHold } from '../types'
 
 interface KilterBoardCanvasProps {
   selectedHolds: SelectedHold[]
   onHoldClick: (hold: Hold) => void
   mode?: 'builder' | 'heatmap'
+  grade?: string
 }
 
 function useImage(src: string): HTMLImageElement | null {
@@ -25,6 +27,7 @@ export default function KilterBoardCanvas({
   selectedHolds,
   onHoldClick,
   mode = 'builder',
+  grade,
 }: KilterBoardCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [canvasWidth, setCanvasWidth] = useState(600)
@@ -47,6 +50,13 @@ export default function KilterBoardCanvas({
     queryKey: ['holds', 'kilter'],
     queryFn: () => holdsService.list({ board_type: 'kilter' }),
   })
+
+  const { data: heatmapData = [] } = useQuery({
+    queryKey: ['heatmap', grade],
+    queryFn: () => holdsService.heatmap(grade),
+    enabled: mode === 'heatmap',
+  })
+  const heatMap = new Map(heatmapData.map((h) => [h.hold_id, h.intensity]))
 
   const selectedIds = new Set(selectedHolds.map((s) => s.hold.id))
 
@@ -85,10 +95,6 @@ export default function KilterBoardCanvas({
           <Layer>
             {holds.map((hold) => {
               const sel = selectedHolds.find((s) => s.hold.id === hold.id)
-              const idx = sel ? sel.position : undefined
-              const isStart = idx === 1
-              const isFinish = idx === selectedHolds.length && selectedHolds.length > 0
-
               return (
                 <HoldMarker
                   key={hold.id}
@@ -96,9 +102,9 @@ export default function KilterBoardCanvas({
                   canvasWidth={canvasWidth}
                   canvasHeight={canvasHeight}
                   selected={selectedIds.has(hold.id)}
-                  sequencePosition={idx}
-                  isStart={isStart}
-                  isFinish={isFinish}
+                  sequencePosition={sel?.position}
+                  role={sel?.role}
+                  heatIntensity={mode === 'heatmap' ? (heatMap.get(hold.id) ?? 0) : undefined}
                   onClick={mode === 'builder' ? onHoldClick : () => {}}
                 />
               )

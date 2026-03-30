@@ -97,8 +97,11 @@ export interface AttemptStats {
 }
 
 // Canvas hold with selection state
+export type HoldRole = 'start' | 'middle' | 'foot' | 'finish'
+
 export interface SelectedHold {
   hold: Hold
   position: number
+  role: HoldRole
   foot_restriction: boolean
 }
